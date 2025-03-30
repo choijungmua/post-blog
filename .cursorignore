@@ -23,7 +23,6 @@
 # 캐시 디렉토리
 .cache
 
-/Readme.md
 /yarn.lock
 /postcss.config.mjs
 /eslint.config.mjs
