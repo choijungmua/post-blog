@@ -1,7 +1,7 @@
 import "../assets/styles/globals.css";
 import { ToastProvider } from "@/components/shadcn/use-toast";
-import Header from "@/components/shadcn/header";
-import { ThemeProvider } from "@/components/theme/ThemeProvider";
+import Header from "@/components/ui/nav";
+import { ThemeProvider } from "@/utils/theme/ThemeProvider";
 
 export const metadata = {
   title: "블로그",

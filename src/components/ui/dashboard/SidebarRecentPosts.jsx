@@ -1,14 +1,17 @@
 import React from "react";
 import { Table, TableBody, TableRow, TableCell } from "../../shadcn/table";
-import { recentPosts } from "../../../lib/data/siteData";
 
-const SidebarRecentPosts = () => {
+/**
+ * 대시보드 사이드바 최신 글 목록 컴포넌트
+ * 최신 글 목록을 표시합니다.
+ */
+const SidebarRecentPosts = ({ posts }) => {
   return (
     <div className="p-4 pb-16">
       <h3 className="font-medium text-lg mb-3">최신 글 목록</h3>
       <Table>
         <TableBody>
-          {recentPosts.map((post) => (
+          {posts.map((post) => (
             <TableRow
               key={post.id}
               className="hover:bg-slate-100/20 cursor-pointer"

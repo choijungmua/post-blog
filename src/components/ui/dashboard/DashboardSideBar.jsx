@@ -5,7 +5,11 @@ import { Button } from "@/components/shadcn/button";
 import SidebarTechStacks from "./SidebarTechStacks";
 import SidebarRecentPosts from "./SidebarRecentPosts";
 
-export default function DashboardSideBar() {
+/**
+ * 대시보드 사이드바 컴포넌트
+ * 기술 스택과 최신 글 목록을 표시합니다.
+ */
+export default function DashboardSideBar({ posts }) {
   // 토글 상태 관리 추가
   const [activeTab, setActiveTab] = useState("techstack");
 
@@ -40,7 +44,7 @@ export default function DashboardSideBar() {
           {activeTab === "techstack" ? (
             <SidebarTechStacks />
           ) : (
-            <SidebarRecentPosts />
+            <SidebarRecentPosts posts={posts} />
           )}
         </ScrollArea>
         <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-background to-transparent pointer-events-none"></div>

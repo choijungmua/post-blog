@@ -71,53 +71,83 @@ export default {
       typography: {
         DEFAULT: {
           css: {
+            color: "hsl(var(--foreground))",
+            maxWidth: "none",
+            hr: {
+              borderColor: "hsl(var(--border))",
+              marginTop: "3em",
+              marginBottom: "3em",
+            },
+            "h1, h2, h3, h4, h5, h6": {
+              color: "hsl(var(--foreground))",
+              fontWeight: "600",
+            },
             h1: {
               fontSize: "2.5rem",
               fontWeight: "700",
               marginTop: "2rem",
               marginBottom: "1rem",
               lineHeight: "1.2",
-              color: "hsl(var(--foreground))",
             },
             h2: {
               fontSize: "2rem",
-              fontWeight: "600",
               marginTop: "1.75rem",
               marginBottom: "0.75rem",
               lineHeight: "1.3",
-              color: "hsl(var(--foreground))",
             },
             h3: {
               fontSize: "1.75rem",
-              fontWeight: "600",
               marginTop: "1.5rem",
               marginBottom: "0.75rem",
               lineHeight: "1.4",
-              color: "hsl(var(--foreground))",
             },
             h4: {
               fontSize: "1.5rem",
-              fontWeight: "600",
               marginTop: "1.25rem",
               marginBottom: "0.5rem",
               lineHeight: "1.5",
-              color: "hsl(var(--foreground))",
             },
             h5: {
               fontSize: "1.25rem",
-              fontWeight: "600",
               marginTop: "1rem",
               marginBottom: "0.5rem",
               lineHeight: "1.6",
-              color: "hsl(var(--foreground))",
             },
             h6: {
               fontSize: "1rem",
-              fontWeight: "600",
               marginTop: "0.75rem",
               marginBottom: "0.5rem",
               lineHeight: "1.6",
+            },
+            a: {
+              color: "hsl(var(--primary))",
+              textDecoration: "none",
+              "&:hover": {
+                textDecoration: "underline",
+              },
+            },
+            strong: {
               color: "hsl(var(--foreground))",
+              fontWeight: "600",
+            },
+            code: {
+              color: "hsl(var(--foreground))",
+              backgroundColor: "hsl(var(--muted))",
+              borderRadius: "0.25rem",
+              padding: "0.2em 0.4em",
+              fontWeight: "400",
+            },
+            blockquote: {
+              borderLeftColor: "hsl(var(--muted))",
+              color: "hsl(var(--muted-foreground))",
+              fontStyle: "italic",
+            },
+            ul: {
+              listStyleType: "disc",
+              paddingLeft: "1.5em",
+            },
+            ol: {
+              paddingLeft: "1.5em",
             },
           },
         },

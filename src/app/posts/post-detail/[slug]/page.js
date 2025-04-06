@@ -1,6 +1,6 @@
 // app/blog/[slug]/page.js
-import { getPostData, getAllPostIds } from "@/lib/posts";
 import PostDetailScreen from "@/screen/PostDetailScreen";
+import { getAllPostIds, getPostData } from "@/utils/posts";
 
 /**
  * 빌드 시 정적 페이지 생성을 위한 동적 경로 목록을 생성합니다.

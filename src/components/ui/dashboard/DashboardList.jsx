@@ -1,7 +1,11 @@
 "use client";
 import React, { useRef, useEffect, useState } from "react";
-import { animation } from "@/lib/anime";
+import { animation } from "@/utils/anime";
 
+/**
+ * 대시보드 리스트 컴포넌트
+ * 스크롤 시 애니메이션 효과를 줍니다.
+ */
 function DashboardList() {
   const titleRef = useRef(null);
   const subTitleRef = useRef(null);

@@ -14,6 +14,16 @@ const nextConfig = {
         hostname: "images.unsplash.com",
         pathname: "**",
       },
+      {
+        protocol: "https",
+        hostname: "placekitten.com",
+        pathname: "**",
+      },
+      {
+        protocol: "https",
+        hostname: "picsum.photos",
+        pathname: "**",
+      },
     ],
   },
   // 라우팅 설정 추가

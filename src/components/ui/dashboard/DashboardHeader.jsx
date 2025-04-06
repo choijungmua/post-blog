@@ -1,10 +1,13 @@
 "use client";
 
 import React, { useEffect, useRef } from "react";
-import anime from "animejs";
-import { animation } from "@/lib/anime";
 import { Button } from "@/components/shadcn";
 import { ArrowRightIcon } from "lucide-react";
+import { animation } from "@/utils/anime";
+
+/**
+ * 대시보드 헤더 컴포넌트
+ */
 function DashboardHeader() {
   const line1Ref = useRef(null);
   const line2Ref = useRef(null);

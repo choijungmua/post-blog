@@ -5,7 +5,6 @@ import { useEffect, useRef } from "react";
 const createHeadingComponent = (level, fontSize, marginTop, marginBottom) => {
   const Component = ({ id, children, ...props }) => {
     const HeadingTag = `h${level}`;
-    const sizeClass = fontSize;
     const headingRef = useRef(null);
     const hashSize =
       level === 1
@@ -13,11 +12,7 @@ const createHeadingComponent = (level, fontSize, marginTop, marginBottom) => {
         : level === 2
         ? "h-6 w-6"
         : level === 3
-        ? "h-5.5 w-5.5"
-        : level === 4
         ? "h-5 w-5"
-        : level === 5
-        ? "h-4.5 w-4.5"
         : "h-4 w-4";
 
     // 자동으로 ID 생성 (제공된 ID가 없는 경우)
@@ -28,30 +23,32 @@ const createHeadingComponent = (level, fontSize, marginTop, marginBottom) => {
             .toLowerCase()
             .replace(/\s+/g, "-")
             .replace(/[^\w\-]+/g, "")
-            .replace(/^-+|-+$/g, "")
+            .replace(/[\u3131-\uD79D]/g, (c) => {
+              // 한글 문자를 각 문자의 유니코드 코드 포인트로 대체
+              return encodeURIComponent(c).replace(/%/g, "");
+            })
+            .replace(/^-+|-+$/g, "") +
+          // 동일 텍스트로 인한 중복 ID 방지를 위해 텍스트 자체를 해시화
+          (children.length > 0
+            ? `-${level}-${children
+                .split("")
+                .reduce((acc, char) => (acc + char.charCodeAt(0)) % 1000, 0)}`
+            : `-${level}-random`)
         : `heading-${level}-${Math.random().toString(36).substr(2, 9)}`);
 
     // URL 해시가 현재 헤딩과 일치하는지 확인하여 스크롤
     useEffect(() => {
       if (window.location.hash === `#${headingId}` && headingRef.current) {
-        setTimeout(() => {
-          scrollToHeading();
-        }, 100);
+        setTimeout(scrollToHeading, 100);
       }
     }, []);
 
     // 개선된 스크롤 함수
     const scrollToHeading = () => {
       if (!headingRef.current) return;
-
-      // 상단 네비게이션 바 등을 고려한 오프셋
       const offset = 100;
-
-      // 요소의 절대 위치 계산
       const rect = headingRef.current.getBoundingClientRect();
       const absoluteTop = rect.top + window.pageYOffset;
-
-      // 스크롤 위치 설정
       window.scrollTo({
         top: absoluteTop - offset,
         behavior: "smooth",
@@ -60,16 +57,12 @@ const createHeadingComponent = (level, fontSize, marginTop, marginBottom) => {
 
     const smoothScrollToElement = (e) => {
       if (e) e.preventDefault();
-
-      // URL 해시 업데이트
       window.history.pushState(null, null, `#${headingId}`);
-
-      // 스크롤 실행
       scrollToHeading();
     };
 
     return (
-      <div className="flex items-center group relative">
+      <div className="heading-wrapper relative group hover:text-blue-400">
         <a
           href={`#${headingId}`}
           className="absolute -left-8 flex items-center justify-center h-full opacity-0 group-hover:opacity-100 transition-opacity"
@@ -77,13 +70,13 @@ const createHeadingComponent = (level, fontSize, marginTop, marginBottom) => {
           aria-label={`${children} 섹션으로 이동`}
         >
           <Hash
-            className={`${hashSize} text-gray-400 hover:text-blue-500 dark:text-gray-500 dark:hover:text-blue-400`}
+            className={`${hashSize} text-muted-foreground group-hover:text-blue-400 transition-colors`}
           />
         </a>
         <HeadingTag
           id={headingId}
           ref={headingRef}
-          className={`${sizeClass} font-semibold mt-${marginTop} mb-${marginBottom} cursor-pointer hover:text-blue-600 dark:hover:text-blue-400`}
+          className={`${fontSize} cursor-pointer font-semibold mt-${marginTop} mb-${marginBottom} transition-colors`}
           onClick={smoothScrollToElement}
           {...props}
         >

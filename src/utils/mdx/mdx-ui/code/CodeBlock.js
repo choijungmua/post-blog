@@ -19,16 +19,17 @@ export const Code = ({ className, children, ...props }) => {
     setTimeout(() => setIsCopied(false), 2000);
   };
 
+  // 코드 블록에는 어두운 테마를 유지 (가독성을 위해)
   return match ? (
     <div
       className="relative"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {/* 폴더 탭 부분 - 호버 시 크기 변경 */}
+      {/* 폴더 탭 부분 */}
       <div
-        className={`relative z-10 inline-block px-6 py-1.5 bg-[#1e1e1e] text-[#d4d4d4] font-mono rounded-t-md 
-          border-t border-l border-r border-[#3c3c3c] ml-0 text-xs transition-all duration-300 ease-in-out
+        className={`relative z-10 inline-block bg-[#1e1e1e] text-gray-300 font-mono rounded-t-md 
+          border-t border-l border-r border-[#333] ml-0 transition-all duration-300 ease-in-out
           ${
             isHovered ? "px-8 py-2 text-sm font-medium" : "px-6 py-1.5 text-xs"
           }`}
@@ -37,17 +38,17 @@ export const Code = ({ className, children, ...props }) => {
       </div>
 
       {/* 코드 블록 본문 */}
-      <div className="relative border border-[#3c3c3c] rounded-md rounded-tl-none bg-[#1e1e1e] shadow-lg">
-        {/* 복사 버튼 - 코드 블록 내부 상단에 위치 */}
+      <div className="relative border border-[#333] rounded-md rounded-tl-none bg-[#1e1e1e] shadow-lg">
+        {/* 복사 버튼 */}
         <button
           onClick={handleCopy}
-          className={`absolute right-4 top-4 z-20 p-1.5 rounded-md transition-opacity duration-200 cursor-pointer ${
-            isHovered ? "opacity-100" : "opacity-0"
-          } hover:bg-[#4a4a4a] text-gray-300 hover:text-[#61afef]`}
+          className={`absolute right-4 top-4 z-20 p-1.5 rounded-md transition-all duration-200 
+            ${isHovered ? "opacity-100" : "opacity-0"} 
+            hover:bg-[#333] text-gray-300 hover:text-primary`}
           aria-label="복사하기"
         >
           {isCopied ? (
-            <Check size={16} className="text-green-400" />
+            <Check size={16} className="text-green-500" />
           ) : (
             <ClipboardCopy size={16} />
           )}
@@ -60,7 +61,7 @@ export const Code = ({ className, children, ...props }) => {
           customStyle={{
             margin: 0,
             borderRadius: 0,
-            background: "#1e1e1e", // VS Code 기본 테마 배경색
+            background: "#1e1e1e",
             padding: "1rem",
           }}
           {...props}
@@ -71,7 +72,7 @@ export const Code = ({ className, children, ...props }) => {
     </div>
   ) : (
     <code
-      className="px-1.5 py-0.5 bg-gray-100 dark:bg-[#2d2d2d] text-gray-900 dark:text-[#d4d4d4] rounded-md text-sm"
+      className="px-1.5 py-0.5 bg-muted text-muted-foreground rounded-md text-sm"
       {...props}
     >
       {children}

@@ -2,8 +2,6 @@
 
 import { MDXRemote } from "next-mdx-remote";
 import { useState, useEffect, useRef } from "react";
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { vscDarkPlus } from "react-syntax-highlighter/dist/cjs/styles/prism";
 import "katex/dist/katex.min.css";
 import { InlineMath, BlockMath } from "react-katex";
 import remarkGfm from "remark-gfm";
@@ -24,6 +22,17 @@ import ImageComponent from "./mdx-ui/img/Image";
 import { tableComponents } from "./mdx-ui/text/Table";
 import { codeComponents } from "./mdx-ui/code/CodeBlock";
 
+// MDX 처리를 위한 설정
+const mdxOptions = {
+  remarkPlugins: [
+    remarkParse,
+    [remarkGfm, { tableCellPadding: true, tablePipeAlign: true }],
+    remarkMath,
+  ],
+  rehypePlugins: [rehypePrism, rehypeKatex],
+  format: "mdx",
+};
+
 // 토글(아코디언) 컴포넌트
 const CustomAccordion = ({ summaryContent, children }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -37,17 +46,13 @@ const CustomAccordion = ({ summaryContent, children }) => {
     }
   }, [children, isOpen]);
 
-  const toggleAccordion = () => {
-    setIsOpen(!isOpen);
-  };
-
   return (
-    <div className="border border-gray-200 dark:border-gray-700 rounded-md my-6 overflow-hidden shadow-md">
-      <div className="flex justify-between items-center w-full px-5 py-4 text-left text-gray-800 dark:text-gray-200 font-medium bg-gray-100 dark:bg-gray-800 transition-colors duration-200 ease-in-out">
+    <div className="border border-border rounded-md my-6 overflow-hidden shadow-md">
+      <div className="flex justify-between items-center w-full px-5 py-4 text-left text-foreground font-medium bg-accent/20">
         <span className="text-md font-semibold">{summaryContent}</span>
         <button
-          className="focus:outline-none bg-blue-500 hover:bg-blue-600 text-white px-3 py-1.5 rounded-md flex items-center gap-1 text-sm transition-colors duration-200"
-          onClick={toggleAccordion}
+          className="focus:outline-none bg-primary hover:bg-primary/90 text-primary-foreground px-3 py-1.5 rounded-md flex items-center gap-1 text-sm transition-colors"
+          onClick={() => setIsOpen(!isOpen)}
           aria-label={isOpen ? "접기" : "펼치기"}
           aria-expanded={isOpen}
         >
@@ -68,7 +73,7 @@ const CustomAccordion = ({ summaryContent, children }) => {
           overflow: "hidden",
         }}
       >
-        <div className="p-5 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700">
+        <div className="p-5 bg-background border-t border-border">
           {children}
         </div>
       </div>
@@ -90,13 +95,11 @@ const extractDetailsContent = (content) => {
 };
 
 // 각주 컴포넌트
-const FootnoteReference = ({ id }) => {
-  return (
-    <sup id={`footnote-ref-${id}`} className="text-blue-500">
-      <a href={`#footnote-${id}`}>[{id}]</a>
-    </sup>
-  );
-};
+const FootnoteReference = ({ id }) => (
+  <sup id={`footnote-ref-${id}`} className="text-primary">
+    <a href={`#footnote-${id}`}>[{id}]</a>
+  </sup>
+);
 
 // MDX에서 사용할 수 있는 커스텀 컴포넌트들
 const components = {
@@ -117,7 +120,6 @@ const components = {
 
   // 체크박스 리스트 처리 개선
   ul: (props) => {
-    // className에 contains-task-list가 있는지 확인
     const isTaskList =
       props.className && props.className.includes("contains-task-list");
     return (
@@ -131,7 +133,6 @@ const components = {
   },
   ol: (props) => <ol className="list-decimal pl-5 my-4 space-y-1" {...props} />,
   li: (props) => {
-    // 체크박스가 포함된 리스트 아이템 처리
     if (props.className && props.className.includes("task-list-item")) {
       return <li className="flex items-center my-1 pl-0" {...props} />;
     }
@@ -143,15 +144,12 @@ const components = {
     if (props.type === "checkbox") {
       return (
         <div
-          className={`w-4 h-4 mr-2 border rounded border-gray-400 dark:border-gray-500 inline-flex items-center justify-center ${
-            props.checked
-              ? "bg-blue-500 border-blue-500"
-              : "bg-white dark:bg-gray-800"
-          }`}
+          className={`w-4 h-4 mr-2 border rounded border-border inline-flex items-center justify-center
+          ${props.checked ? "bg-primary border-primary" : "bg-background"}`}
         >
           {props.checked && (
             <svg
-              className="w-3 h-3 text-white"
+              className="w-3 h-3 text-primary-foreground"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -174,7 +172,7 @@ const components = {
   // 인용구
   blockquote: (props) => (
     <blockquote
-      className="pl-4 border-l-4 border-gray-300 dark:border-gray-700 italic text-gray-700 dark:text-gray-300 my-4"
+      className="pl-4 border-l-4 border-muted italic text-muted-foreground my-4"
       {...props}
     />
   ),
@@ -184,33 +182,21 @@ const components = {
   em: (props) => <em className="italic" {...props} />,
 
   // 링크
-  a: (props) => (
-    <a
-      className="text-blue-600 hover:underline dark:text-blue-400"
-      {...props}
-    />
-  ),
+  a: (props) => <a className="text-primary hover:underline" {...props} />,
 
   // 구분선
-  hr: () => (
-    <hr className="my-6 border-t border-gray-300 dark:border-gray-700" />
-  ),
+  hr: () => <hr className="my-6 border-t border-border" />,
 
   // 이미지 - 외부 컴포넌트 사용
   img: ImageComponent,
 
   // 마크
-  mark: (props) => (
-    <mark
-      className="bg-yellow-200 dark:bg-yellow-800 px-1 rounded"
-      {...props}
-    />
-  ),
+  mark: (props) => <mark className="bg-primary/20 px-1 rounded" {...props} />,
 
   // KBD
   kbd: (props) => (
     <kbd
-      className="px-2 py-1 bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded text-xs font-mono"
+      className="px-2 py-1 bg-muted border border-border rounded text-xs font-mono"
       {...props}
     />
   ),
@@ -259,15 +245,8 @@ const components = {
 
   // 정의 목록
   dl: (props) => <dl className="mt-4 mb-6" {...props} />,
-  dt: (props) => (
-    <dt
-      className="font-bold text-gray-900 dark:text-gray-100 mt-2"
-      {...props}
-    />
-  ),
-  dd: (props) => (
-    <dd className="ml-4 text-gray-700 dark:text-gray-300 mb-2" {...props} />
-  ),
+  dt: (props) => <dt className="font-bold text-foreground mt-2" {...props} />,
+  dd: (props) => <dd className="ml-4 text-muted-foreground mb-2" {...props} />,
 
   // 단락(p) 요소 처리 추가/개선
   p: (props) => {
@@ -316,41 +295,42 @@ export default function MDXRenderer({ source }) {
       const processedDetailsContent = extractDetailsContent(source);
       const processedContent = processCallouts(processedDetailsContent);
 
-      serialize(processedContent).then((processedSource) => {
-        // 처리된 소스로 업데이트
-        setProcessedSource(processedSource);
-      });
+      serialize(processedContent, {
+        mdxOptions,
+        parseFrontmatter: true,
+      }).then(setProcessedSource);
     }
   }, [source]);
 
   // 서버 렌더링 단계에서는 최소한의 컨텐츠만 표시
   if (!isClient) {
-    return <div className="min-h-[200px]">콘텐츠 로딩 중...</div>;
+    return (
+      <div className="min-h-[200px] flex items-center justify-center text-muted-foreground">
+        콘텐츠 로딩 중...
+      </div>
+    );
   }
 
-  // 클라이언트 사이드에서만 - remarkGfm만 사용 (각주 기능도 포함됨)
+  // 클라이언트 사이드에서만 MDX 렌더링
   return (
     <>
-      <MDXRemote
-        {...(processedSource || source)}
-        components={components}
-        options={{
-          mdxOptions: {
-            remarkPlugins: [
-              remarkParse,
-              [remarkGfm, { tableCellPadding: true, tablePipeAlign: true }],
-              remarkMath,
-            ],
-            rehypePlugins: [rehypePrism, rehypeKatex],
-            format: "mdx",
-          },
-          parseFrontmatter: true,
-        }}
-      />
+      {processedSource ? (
+        <MDXRemote
+          {...processedSource}
+          components={components}
+          options={{ mdxOptions, parseFrontmatter: true }}
+        />
+      ) : (
+        <MDXRemote
+          {...source}
+          components={components}
+          options={{ mdxOptions, parseFrontmatter: true }}
+        />
+      )}
 
       {/* 각주 목록 렌더링 */}
       {footnotes.length > 0 && (
-        <div className="mt-10 pt-6 border-t border-gray-200 dark:border-gray-800">
+        <div className="mt-10 pt-6 border-t border-border">
           <h2 className="text-xl font-bold mb-4">각주</h2>
           {footnotes.map((note) => (
             <div
@@ -360,7 +340,7 @@ export default function MDXRenderer({ source }) {
             >
               <a
                 href={`#footnote-ref-${note.id}`}
-                className="text-blue-500 mr-1"
+                className="text-primary mr-1"
               >
                 ^{note.id}
               </a>{" "}

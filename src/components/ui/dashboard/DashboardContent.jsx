@@ -8,6 +8,10 @@ import {
 } from "@/components/shadcn/carousel";
 import Image from "next/image";
 
+/**
+ * 대시보드 컨텐츠 컴포넌트
+ * 캐러셀에 표시할 이미지 데이터를 정의합니다.
+ */
 function DashboardContent() {
   // 캐러셀에 표시할 이미지 데이터
   const slides = [

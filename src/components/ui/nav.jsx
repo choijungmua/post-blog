@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import {
   NavigationMenu,
@@ -5,24 +7,23 @@ import {
   NavigationMenuItem,
   NavigationMenuTrigger,
   NavigationMenuContent,
-} from "./navigation-menu";
+} from "../shadcn/navigation-menu";
 import Link from "next/link";
+import { Button } from "../shadcn";
+import { SunIcon, MoonIcon } from "lucide-react";
+import { useTheme } from "next-themes";
 
 function Header() {
+  const { theme, setTheme } = useTheme();
   // 메뉴 데이터 구조화
   const menuItems = [
     {
-      title: "홈",
+      title: "Home",
       submenu: [
         {
-          title: "홈 서브메뉴 1",
+          title: "홈",
           href: "/",
-          description: "홈 서브메뉴 1에 대한 설명입니다.",
-        },
-        {
-          title: "홈 서브메뉴 2",
-          href: "/home/submenu2",
-          description: "홈 서브메뉴 2에 대한 설명입니다.",
+          description: "메인 페이지",
         },
       ],
       width: "300px",
@@ -31,50 +32,29 @@ function Header() {
       title: "Design",
       submenu: [
         {
-          title: "Color",
+          title: "색상",
           href: "/design/color",
           description: "블로그의 현재 색상 테마를 보여줍니다.",
         },
         {
-          title: "Font",
+          title: "폰트",
           href: "/design/font",
           description: "블로그의 현재 폰트 테마를 보여줍니다.",
         },
       ],
       width: "300px",
     },
-    {
-      title: "소개",
-      submenu: [
-        {
-          title: "회사 역사",
-          href: "/about/history",
-          description: "회사의 역사에 대한 설명입니다.",
-        },
-        {
-          title: "팀 소개",
-          href: "/about/team",
-          description: "우리 팀에 대한 소개입니다.",
-        },
-      ],
-      width: "300px",
-    },
-    {
-      title: "문의",
-      submenu: [
-        {
-          title: "이메일 문의",
-          href: "/contact/email",
-          description: "이메일로 문의하기",
-        },
-        {
-          title: "양식 작성",
-          href: "/contact/form",
-          description: "문의 양식 작성하기",
-        },
-      ],
-      width: "300px",
-    },
+    // {
+    //   title: "Introduction",
+    //   submenu: [
+    //     {
+    //       title: "개발자 소개",
+    //       href: "/about/history",
+    //       description: "개발자의 소개입니다.",
+    //     },
+    //   ],
+    //   width: "300px",
+    // },
   ];
 
   return (
@@ -111,6 +91,15 @@ function Header() {
             ))}
           </NavigationMenuList>
         </NavigationMenu>
+        {/* 다크모드 화이트모드 */}
+        <div className="flex items-center">
+          <Button variant="ghost" size="icon" onClick={() => setTheme("light")}>
+            <SunIcon className="h-4 w-4" />
+          </Button>
+          <Button variant="ghost" size="icon" onClick={() => setTheme("dark")}>
+            <MoonIcon className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
     </nav>
   );

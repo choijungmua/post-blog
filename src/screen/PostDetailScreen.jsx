@@ -1,8 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import MDXRenderer from "@/components/mdx/MDXRenderer";
+import MDXRenderer from "@/utils/mdx/MDXRenderer";
 import useSWR from "swr";
+import Image from "next/image";
+import { PostGithubComment, PostMenu } from "@/components/ui/post";
 
 /**
  * 게시글 상세 화면 컴포넌트
@@ -17,19 +19,17 @@ export default function PostDetailScreen({ postData }) {
   // SWR을 사용하여 데이터 캐싱
   const fetcher = () => Promise.resolve(postData);
   const { data } = useSWR(postId ? `/posts/${postId}` : null, fetcher, {
-    revalidateOnFocus: false, // 페이지 포커스 시 재검증 비활성화
-    revalidateOnReconnect: false, // 네트워크 재연결 시 재검증 비활성화
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false,
     dedupingInterval: 1000 * 60 * 60, // 1시간 동안 중복 요청 방지
   });
 
-  // 캐시된 데이터가 있으면 사용, 없으면 props의 데이터 사용
+  // 캐시된 데이터 관리
   useEffect(() => {
     if (data && data !== cachedData) {
       setCachedData(data);
-      // 로컬 스토리지에도 저장 (선택적)
       try {
         localStorage.setItem(`post-${postId}`, JSON.stringify(data));
-        console.log(`포스트 ${postId} 캐시에 저장됨`);
       } catch (error) {
         console.error("로컬 스토리지 저장 실패:", error);
       }
@@ -42,9 +42,7 @@ export default function PostDetailScreen({ postData }) {
       try {
         const storedData = localStorage.getItem(`post-${postId}`);
         if (storedData) {
-          const parsedData = JSON.parse(storedData);
-          console.log(`포스트 ${postId} 캐시에서 로드됨`);
-          setCachedData(parsedData);
+          setCachedData(JSON.parse(storedData));
         }
       } catch (error) {
         console.error("로컬 스토리지 로드 실패:", error);
@@ -53,11 +51,53 @@ export default function PostDetailScreen({ postData }) {
   }, [postId]);
 
   return (
-    <article className="container mx-auto px-4">
-      <h1 className="text-4xl font-bold my-8">{cachedData.title}</h1>
-      <div className="text-gray-500 mb-4">{cachedData.date}</div>
-      <div className="prose prose-lg mx-auto max-w-3xl">
-        <MDXRenderer source={cachedData.mdxSource} />
+    <article className="pt-0">
+      {cachedData.thumbnail && (
+        <div className="mb-8">
+          <div className="relative aspect-[16/9] w-full rounded-lg shadow-md border border-border overflow-hidden">
+            <Image
+              src={cachedData.thumbnail}
+              alt={cachedData.title}
+              fill
+              priority
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 90vw, 80vw"
+              className="object-cover hover:scale-105 transition-all duration-500"
+            />
+          </div>
+        </div>
+      )}
+
+      {cachedData.tags && cachedData.tags.length > 0 && (
+        <div className="flex flex-wrap gap-2 mb-2">
+          {cachedData.tags.map((tag) => (
+            <span
+              key={tag}
+              className="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm"
+            >
+              {tag}
+            </span>
+          ))}
+        </div>
+      )}
+
+      <div>
+        <h1 className="text-4xl font-bold mb-4 text-foreground">
+          {cachedData.title}
+        </h1>
+
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
+          <div className="text-muted-foreground">{cachedData.date}</div>
+
+          {/* 포스트 메뉴 추가 */}
+          {/* <PostMenu
+            postSlug={cachedData.id || cachedData.slug}
+            postTitle={cachedData.title}
+          /> */}
+        </div>
+
+        <div className="prose prose-lg dark:prose-invert max-w-none">
+          <MDXRenderer source={cachedData.mdxSource} />
+        </div>
       </div>
     </article>
   );

@@ -1,6 +1,6 @@
 import React from "react";
 import { Table, TableBody, TableRow, TableCell } from "../../shadcn/table";
-import { techStacksByCategory } from "../../../lib/data/techList";
+import { techStacksByCategory } from "@/utils/data/siteData";
 
 const SidebarTechStacks = () => {
   return (

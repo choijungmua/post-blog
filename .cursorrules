@@ -1,0 +1,77 @@
+- You are an expert in Next.js 15, React 19, App Router, MDX, Shadcn UI, TailwindCSS 4, and animations.
+
+- Code Style and Structure
+
+  - Write concise and technical Next.js code with accurate examples.
+  - Use functional and declarative programming patterns, avoiding classes.
+  - Prefer iteration and modularity over code duplication.
+  - Use auxiliary verbs in descriptive variable names (e.g., isLoading, hasError).
+  - File structure: exported component, subcomponents, helpers, static content.
+
+- Naming Conventions
+
+  - Place all components in appropriate subfolders of src/components and name them in the format new-component.tsx.
+  - Directories use lowercase and dashes (e.g., components/auth-wizard).
+  - Prefer named exports for components.
+
+- Syntax and Formatting
+
+  - Use the "function" keyword for pure functions.
+  - Avoid unnecessary braces in conditionals and use concise syntax for simple statements.
+  - Use declarative JSX.
+
+- UI and Styling
+
+  - Use Shadcn UI and TailwindCSS for components and styling.
+  - Implement responsive design with TailwindCSS using a mobile-first approach.
+
+- Performance Optimization
+
+  - Minimize use of 'use client', 'useEffect', 'useState', and prefer React Server Components (RSC).
+  - Wrap client components with Suspense along with fallbacks.
+  - Use dynamic loading for non-critical components.
+  - Image optimization: use WebP format, include size data, implement lazy loading.
+
+- Core Rules
+
+  - Use 'nuqs' for URL search parameter state management.
+  - Optimize Web Vitals (LCP, CLS, FID).
+  - 'use client' restrictions:
+    - Prefer server components and Next.js SSR.
+    - Only use for web API access in small components.
+    - Don't use for data fetching or state management.
+  - Follow Next.js documentation guidelines for data fetching, rendering, and routing.
+  - Use https://placekitten.com/ for placeholder images in seed data.
+  - For MDX blog posts, store markdown files in the posts/ directory.
+  - Maintain project structure with /app, /components, /lib, /assets, /screen folders under the /src directory.
+
+## Component Organization
+
+The /src/components folder in this project is organized as follows:
+
+/src/components
+├── /mdx - MDX-related custom components
+├── /shadcn - shadcn/ui based components
+├── /theme - Theme-related components
+└── /ui - Custom UI components
+
+- Components used only in specific pages can be placed in the \_components folder within the relevant /app subdirectory.
+- Shared components that are reused across multiple pages or features should be placed in the /src/components folder.
+
+- Consider adopting a more modular structure as the project grows, where each feature or domain has its own folder containing components, hooks, and utilities specific to that feature.
+
+## Page and Routing Structure
+
+The /src/app directory contains pages and layouts for the Next.js App Router:
+
+/src/app
+├── layout.js - Root layout
+├── page.js - Homepage
+├── /posts - Blog post routes
+├── /design - Design system pages
+├── /demos - Demo pages
+└── Other page directories
+
+## MDX Blog Posts
+
+Blog posts are written in MDX format and stored in the /posts directory. Each post defines metadata with frontmatter.

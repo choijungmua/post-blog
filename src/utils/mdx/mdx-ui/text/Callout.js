@@ -28,6 +28,8 @@ export const processContent = (content) => {
 
 // 콜아웃 렌더링을 위한 사용자 정의 처리기
 export function processCallouts(content) {
+  if (!content || typeof content !== "string") return content;
+
   // 콜아웃 패턴: > [!NOTE|TIP|WARNING|IMPORTANT|CAUTION]
   const regex =
     /^>\s*\[!(NOTE|TIP|WARNING|IMPORTANT|CAUTION|INFO)\]([\s\S]*?)(?=^>|$)/gm;

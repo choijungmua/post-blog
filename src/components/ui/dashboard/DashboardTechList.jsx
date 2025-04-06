@@ -4,7 +4,7 @@ import {
   backendTechs,
   devopsTechs,
   techStacksByCategory,
-} from "../../../lib/data/techList";
+} from "../../utils/data/techList";
 import {
   Table,
   TableHeader,
