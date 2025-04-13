@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import MDXRenderer from "@/utils/mdx/MDXRenderer";
 import useSWR from "swr";
 import Image from "next/image";
-import { PostGithubComment, PostMenu } from "@/components/ui/post";
 
 /**
  * 게시글 상세 화면 컴포넌트
@@ -51,15 +50,16 @@ export default function PostDetailScreen({ postData }) {
   }, [postId]);
 
   return (
-    <article className="pt-0">
+    <article className="pt-0 px-4">
       {cachedData.thumbnail && (
         <div className="mb-8">
           <div className="relative aspect-[16/9] w-full rounded-lg shadow-md border border-border overflow-hidden">
             <Image
               src={cachedData.thumbnail}
               alt={cachedData.title}
-              fill
-              priority
+              width={1200}
+              height={675}
+              priority={true}
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 90vw, 80vw"
               className="object-cover hover:scale-105 transition-all duration-500"
             />

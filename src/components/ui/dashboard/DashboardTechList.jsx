@@ -13,6 +13,7 @@ import {
   TableRow,
   TableCell,
 } from "../../shadcn/table";
+import Image from "next/image";
 
 const TechItem = ({ tech }) => {
   // icon이 문자열(이미지 경로)인 경우와 React 컴포넌트인 경우를 모두 처리
@@ -28,7 +29,7 @@ const TechItem = ({ tech }) => {
               "aria-hidden": "true",
             })
           ) : (
-            <img
+            <Image
               src={`/icons/${tech.icon}`}
               alt={tech.name}
               className="w-6 h-6"

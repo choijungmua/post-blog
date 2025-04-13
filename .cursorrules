@@ -40,9 +40,6 @@
     - Prefer server components and Next.js SSR.
     - Only use for web API access in small components.
     - Don't use for data fetching or state management.
-  - Follow Next.js documentation guidelines for data fetching, rendering, and routing.
-  - Use https://placekitten.com/ for placeholder images in seed data.
-  - For MDX blog posts, store markdown files in the posts/ directory.
   - Maintain project structure with /app, /components, /lib, /assets, /screen folders under the /src directory.
 
 ## Component Organization

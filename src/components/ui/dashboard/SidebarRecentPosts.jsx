@@ -1,5 +1,6 @@
 import React from "react";
 import { Table, TableBody, TableRow, TableCell } from "../../shadcn/table";
+import Link from "next/link";
 
 /**
  * 대시보드 사이드바 최신 글 목록 컴포넌트
@@ -17,7 +18,10 @@ const SidebarRecentPosts = ({ posts }) => {
               className="hover:bg-slate-100/20 cursor-pointer"
             >
               <TableCell className="py-2">
-                <div className="flex flex-col">
+                <Link
+                  href={`/posts/post-detail/${post.id}`}
+                  className="flex flex-col"
+                >
                   <h4 className="text-base font-medium">{post.title}</h4>
                   <p className="text-xs text-muted-foreground mt-1">
                     {post.description}
@@ -25,7 +29,7 @@ const SidebarRecentPosts = ({ posts }) => {
                   <span className="text-xs text-muted-foreground mt-1">
                     {post.date}
                   </span>
-                </div>
+                </Link>
               </TableCell>
             </TableRow>
           ))}

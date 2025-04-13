@@ -30,16 +30,17 @@ function PostListScreen({ posts }) {
   };
 
   return (
-    <div className="container flex-col mx-auto max-w-8xl">
-      <section className="flex gap-4">
+    <div className="container mx-auto max-w-8xl px-2 sm:px-4">
+      <section className="flex gap-3 sm:gap-4 flex-col lg:flex-row">
         <div className="flex flex-col">
           <DashboardHeader />
-          <DashboardContent />
+          <DashboardContent posts={posts} />
         </div>
         <DashboardSideBar posts={posts} />
       </section>
       <DashboardList />
-      <section className="flex gap-4 mt-12 w-full">
+
+      <section className="flex gap-3 sm:gap-4 mt-8 sm:mt-12 w-full flex-col md:flex-row">
         <DashboardPostNav posts={posts} onTagChange={handleTagChange} />
         <DashboardPostList posts={filteredPosts} />
       </section>

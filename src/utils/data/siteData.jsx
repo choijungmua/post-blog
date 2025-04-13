@@ -22,6 +22,35 @@ import {
 } from "react-icons/si";
 import { TbBrandReactNative } from "react-icons/tb";
 
+export const menuItems = [
+  {
+    title: "Home",
+    submenu: [
+      {
+        title: "홈",
+        href: "/",
+        description: "메인 페이지",
+      },
+    ],
+    width: "300px",
+  },
+  {
+    title: "Design",
+    submenu: [
+      {
+        title: "색상",
+        href: "/design/color",
+        description: "블로그의 현재 색상 테마를 보여줍니다.",
+      },
+      {
+        title: "폰트",
+        href: "/design/font",
+        description: "블로그의 현재 폰트 테마를 보여줍니다.",
+      },
+    ],
+    width: "300px",
+  },
+];
 // 기술 스택 데이터
 export const frontendTechs = [
   { id: 1, name: "React", icon: "react.svg" },

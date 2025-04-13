@@ -1,39 +1,26 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  // 리다이렉트 설정을 명시적으로 제어
-  async redirects() {
-    // 빈 배열을 반환하여 기본 리다이렉트를 비활성화
-    return [];
-  },
-  // 이미지 도메인 설정 추가
+  output: "export",
+  // basePath 추가 (배포 환경에 맞게 조정 필요)
+  // basePath: '/next-blog',
   images: {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "images.unsplash.com",
-        pathname: "**",
+        hostname: "images.unsplash.com", // 예시: 사용하려는 이미지 도메인
+        pathname: "**", // 모든 경로를 허용
       },
       {
         protocol: "https",
-        hostname: "placekitten.com",
-        pathname: "**",
-      },
-      {
-        protocol: "https",
-        hostname: "picsum.photos",
+        hostname: "muke.co.kr", // 이 도메인에서 이미지 제공되는 경우
         pathname: "**",
       },
     ],
+    unoptimized: true, // 이미지 최적화 비활성화
   },
-  // 라우팅 설정 추가
-  async rewrites() {
-    return {
-      beforeFiles: [
-        // 필요한 경우 여기에 특정 재작성 규칙 추가
-      ],
-    };
-  },
+  // 정적 배포 시 이미지 경로 수정을 위한 assetPrefix 설정 (배포 환경에 맞게 조정 필요)
+  // assetPrefix: 'https://your-cloudfront-distribution.cloudfront.net',
 };
 
 module.exports = nextConfig;

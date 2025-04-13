@@ -168,25 +168,28 @@ const DashboardPostNavItem = ({ post, isActive, onItemClick }) => {
 
   return (
     <li
-      className={`relative w-[400px] bg-background overflow-hidden ${
+      className={`relative w-full bg-background overflow-hidden ${
         isActive ? "active" : ""
       }`}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
       <button
-        className="block p-3 relative z-20 w-full text-left cursor-pointer"
+        className="block p-2 sm:p-3 relative z-20 w-full text-left cursor-pointer"
         onClick={handleClick}
       >
         <div className="relative">
           {/* 기본 텍스트: CSS 변수 직접 사용 */}
-          <p className="font-medium" style={{ color: "var(--foreground)" }}>
+          <p
+            className="font-medium text-sm sm:text-base"
+            style={{ color: "var(--foreground)" }}
+          >
             {post.title}
           </p>
           {/* 텍스트 오버레이: CSS 변수 직접 사용, clip-path로 가려진 상태 */}
           <p
             ref={textOverlayRef}
-            className="font-medium absolute top-0 left-0 w-full h-full"
+            className="font-medium text-sm sm:text-base absolute top-0 left-0 w-full h-full"
             style={{
               color: "var(--background)", // CSS 변수 직접 사용
               clipPath: "inset(0 0 100% 0)",
@@ -207,7 +210,7 @@ const DashboardPostNavItem = ({ post, isActive, onItemClick }) => {
           {/* 갯수 표시 오버레이 - background 색상으로: CSS 변수 직접 사용 */}
           <span
             ref={countOverlayRef}
-            className="text-xs font-semibold absolute bottom-3 right-3"
+            className="text-xs font-semibold absolute bottom-2 sm:bottom-3 right-2 sm:right-3"
             style={{
               color: "var(--background)", // CSS 변수 직접 사용
               clipPath: "inset(0 0 100% 0)",
@@ -330,9 +333,9 @@ function DashboardPostNav({ posts, onTagChange }) {
   }
 
   return (
-    <nav className="rounded-lg p-4">
+    <nav className="w-full md:w-1/3 lg:w-1/4 rounded-lg p-2 sm:p-4">
       {/* 태그 목록 렌더링 */}
-      <ul className="">
+      <ul className="w-full flex flex-row md:flex-col flex-wrap gap-2 md:gap-1">
         {tagData.map((tagItem) => (
           <DashboardPostNavItem
             key={tagItem.id} // key를 태그 이름(id)으로 설정
