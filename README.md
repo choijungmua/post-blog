@@ -19,7 +19,6 @@
 
 - **React 19**: 최신 버전의 리액트를 사용하여 효율적인 UI 구현
 - **Next.js 15**: App Router, SSR(Server-Side Rendering), ISR(Incremental Static Regeneration) 등의 기능 활용
-- **TypeScript**: 타입 안정성 확보로 개발 생산성 및 코드 품질 향상
 
 ### 디자인 & UI
 

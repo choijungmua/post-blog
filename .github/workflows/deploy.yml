@@ -24,10 +24,8 @@ jobs:
       - name: Install dependencies
         run: yarn install
 
-      - name: Build and export static site
-        run: |
-          yarn build
-          yarn export
+      - name: Build static site
+        run: CI=true yarn build
 
       - name: Upload to S3
         uses: jakejarvis/s3-sync-action@master
