@@ -22,8 +22,11 @@ jobs:
       - name: Install dependencies
         run: yarn install
 
+      - name: Install typescript
+        run: yarn add -D typescript
+
       - name: Build static site
-        run: CI=true yarn build && yarn export
+        run: CI=true yarn build
 
       - name: Upload only posts to S3
         uses: jakejarvis/s3-sync-action@master
@@ -40,8 +43,8 @@ jobs:
         id: changed-posts
         run: |
           echo "PATHS=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} \
-            | grep '^public/posts/.*' \
-            | sed 's/^public//g' \
+            | grep '^out/posts/.*' \
+            | sed 's/^out//g' \
             | tr '\n' ' ')" >> $GITHUB_ENV
 
       - name: Invalidate CloudFront cache for posts
