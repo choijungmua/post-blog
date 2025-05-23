@@ -12,7 +12,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0 # 전체 히스토리 가져오기 (기본은 1)
+          fetch-depth: 0
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
@@ -23,7 +23,7 @@ jobs:
         run: yarn install
 
       - name: Build static site
-        run: CI=true yarn build
+        run: CI=true yarn build && yarn export
 
       - name: Upload only posts to S3
         uses: jakejarvis/s3-sync-action@master
@@ -34,19 +34,18 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: ap-northeast-2
-          SOURCE_DIR: out/public
+          SOURCE_DIR: out
 
       - name: Get changed posts files
         id: changed-posts
         run: |
-          # 변경된 커밋 간 차이를 보고 public/posts 폴더의 경로만 뽑아서 out 제거
           echo "PATHS=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} \
             | grep '^public/posts/.*' \
             | sed 's/^public//g' \
             | tr '\n' ' ')" >> $GITHUB_ENV
 
       - name: Invalidate CloudFront cache for posts
-        if: env.PATHS != '' # 변경된 파일이 있을 때만 실행
+        if: env.PATHS != ''
         uses: chetan/invalidate-cloudfront-action@v2
         env:
           AWS_REGION: ap-northeast-2
