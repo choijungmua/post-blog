@@ -1,254 +1,538 @@
 ---
+
 title: "Tailwind CSS 시작하기"
 date: "2023-02-20"
 tags: ["CSS"]
 thumbnail: "assets/main.jpg"
 excerpt: "Tailwind CSS를 프로젝트에 설정하고 효율적으로 사용하는 방법을 알아봅니다."
----
+---------------------------------------------------------
 
 # Tailwind CSS 시작하기
 
-이 포스트에서는 Tailwind CSS를 프로젝트에 설정하고 사용하는 방법을 알아봅니다.
+이 포스트에서는 Vite와 React 프로젝트에 Tailwind CSS를 설정하고 사용하는 방법을 단계별로 알아봅니다.
 
-## 설치 방법
+Tailwind CSS 공식 문서를 참고하면 더욱 다양한 설정과 유틸리티를 확인할 수 있습니다: [Tailwind CSS 문서](https://tailwindcss.com/)
 
-다음 명령어로 Tailwind CSS를 설치합니다:
+그렇다면 tailwindcss의 장점과 단점은 뭐가 있을까요?
+
+장점 : css 파일을 생성하지 않아도 되며, class명을 지정해주지 않아도 되어 사용이 편리하다.<br/>
+단점 : class안에 모든 스타일을 담아주어야 하니, 가독성이 떨어진다.
+
+하지만 빠르게 개발할 수 있다는 점과, 확장성이 높고 UI 컴포넌트들과의 조화가 좋기 때문에 <br/>
+특이사항이 없다면 tailwindcss와 shadcn/ui를 이용해서 개발을 진행합니다.
+
+## 1. 프로젝트 초기화
+
+터미널에서 다음 명령어를 실행하여 새 프로젝트를 생성합니다. Legacy 방식으로 `package.json` 스크립트를 직접 작성합니다.
 
 ```bash
-npm install -D tailwindcss postcss autoprefixer
+mkdir tailwind-project
+cd tailwind-project
+npm init -y
+```
+
+## 2. Tailwind CSS 설치
+
+`tailwindcss`, `postcss`, `autoprefixer`를 개발 의존성으로 설치하고 초기 설정 파일을 생성합니다.
+
+```bash
+npm install --save-dev tailwindcss postcss autoprefixer
 npx tailwindcss init -p
 ```
 
-## 구성 설정
+실행하면 다음 두 파일이 생성됩니다:
 
-`tailwind.config.js` 파일을 열고 다음과 같이 수정합니다:
+* `tailwind.config.js`
+* `postcss.config.js`
 
----
+## 3. 설정 파일 수정
 
-## 1. 제목과 단락
-
-# 제목 1
-
-## 제목 2
-
-### 제목 3
-
-#### 제목 4
-
-##### 제목 5
-
-###### 제목 6
-
-단락은 이렇게 작성합니다.  
-줄바꿈은 문장 끝에 두 개 이상의 공백을 추가하거나 빈 줄을 삽입하여 표현합니다.
-
----
-
-## 2. 텍스트 서식
-
-**굵은 글씨**  
-_기울임 글씨_  
-_기울임 글씨(다른 방식)_  
-**_굵은 기울임 글씨_**  
-~~취소선~~
-
-<u>밑줄</u>
-<mark>형광펜 효과</mark>H<sub>2</sub>O (아래 첨자) X<sup>2</sup> (위 첨자)
-
-인라인 코드는 `코드`와 같이 사용합니다.
-
----
-
-## 2-1. 아코디언(토글) 예제
-
-<CustomAccordion summaryContent="아코디언 제목 1 - 클릭하여 내용 보기">
-
-아코디언 내부 콘텐츠입니다. 이 콘텐츠는 아코디언이 펼쳐질 때만 보입니다.
-
-- 목록 항목도 포함할 수 있습니다
-- 여러 줄의 내용도 가능합니다
+### 3.1 tailwind.config.js
 
 ```js
-// 코드 블록도 포함 가능합니다
-console.log("Hello from accordion!");
+module.exports = {
+  content: ['./src/**/*.{js,jsx,ts,tsx}', './public/index.html'],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+};
 ```
 
-</CustomAccordion>
+### 3.2 postcss.config.js
 
-<CustomAccordion summaryContent="아코디언 제목 2 - 긴 내용이 있는 예제">
+```js
+module.exports = {
+  plugins: {
+    tailwindcss: {},
+    autoprefixer: {},
+  },
+};
+```
 
-이것은 더 긴 내용을 가진 아코디언 예제입니다. 여러 단락의 텍스트를 포함할 수 있습니다.
+## 4. 글로벌 스타일 설정
 
-두 번째 단락의 내용입니다. 아코디언은 콘텐츠를 숨기고 필요할 때만 보여주는데 유용합니다.
+`src` 디렉터리에 `global.css` 파일을 생성하고 Tailwind 기본 지시문을 추가합니다.
 
-이미지나 다른 컴포넌트도 포함할 수 있습니다:
+```css
+/* src/global.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+```
 
-![작은 이미지](/images/s0.png)
+## 5. Vite 설정
 
-</CustomAccordion>
+루트 디렉터리에 `vite.config.js`를 생성합니다.
+
+```js
+const { defineConfig } = require('vite');
+const react = require('@vitejs/plugin-react');
+
+module.exports = defineConfig({
+  plugins: [react()],
+});
+```
+
+## 6. React 진입 파일 구성
+
+`src` 디렉터리에 애플리케이션 진입점과 컴포넌트 파일을 생성합니다.
+
+### 6.1 index.html
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tailwind Start</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="src/main.jsx"></script>
+  </body>
+</html>
+```
+
+### 6.2 main.jsx
+
+```jsx
+import React from 'react';
+import { createRoot } from 'react-dom/client';
+import App from './App.jsx';
+import './global.css';
+
+const container = document.getElementById('root');
+const root = createRoot(container);
+root.render(
+  React.createElement(App, null)
+);
+```
+
+### 6.3 App.jsx
+
+```jsx
+import React from 'react';
+
+function App() {
+  return (
+    React.createElement('div', { className: 'min-h-screen bg-gray-100 flex items-center justify-center' },
+      React.createElement('div', { className: 'bg-white p-8 rounded-xl shadow-lg' },
+        React.createElement('h1', { className: 'text-2xl font-bold text-gray-800 mb-4' }, 'Tailwind CSS 시작하기'),
+        React.createElement('p', { className: 'text-gray-600' }, 'Vite와 React에서 Tailwind CSS를 설정하고 사용해 보세요!')
+      )
+    )
+  );
+}
+
+module.exports = App;
+```
+
+## 7. 실행 및 확인
+
+다음 명령어로 개발 서버를 실행합니다.
+
+```bash-npm
+npm install
+npm run dev
+```
+
+```bash-yarn
+yarn
+yarn dev
+```
+
+터미널에 표시된 로컬 주소(기본 `http://localhost:3000`)로 접속하여 Tailwind 스타일이 적용된 화면을 확인합니다.
 
 ---
 
-## 3. 링크와 이미지
+이제 Vite 기반 React 프로젝트에서 Tailwind CSS를 활용할 준비가 완료되었습니다. 필요한 유틸리티 클래스를 추가하거나, `tailwind.config.js`에서 커스텀 테마를 설정하여 더욱 다양한 스타일을 적용해 보세요.
 
-### 링크 형식
+## 8. 사용방법
 
-[링크 텍스트](https://www.example.com)
+### 8.1 기존 방식
 
-[내부 링크](/posts/post-list)
+기존 스타일링 방식은, css, scss와, styled-components등과는 다르게 className 안에 바로 스타일링을 지정한다.
 
-### 이미지
+기존 방식의 예 입니다.
 
-![대체 텍스트](/images/main.jpg)
+```html
+<div class="bgRed"></div>
+```
 
-![작은 이미지](/images/s0.png)
+```css
+.bgred: {
+  backgroundcolor: "red";
+}
+```
 
----
+파일도 따로 생성해줘야하며, 번거로운 점이 있습니다.
 
-## 4. 인용문
+### 8.2 tailwindcss의 방식
 
-> 인용문은 이렇게 작성합니다.
+```html
+<div class="bg-red-50~900"</div>
+```
+
+또는
+
+```html
+<div class="bg-[#ff0000]></div>
+```
+
+## tailwindcss의 명령어
+
+아래는 Tailwind CSS에서 자주 쓰이는 주요 유틸리티 클래스들의 분류와 대표적인 예시입니다. <br/>
+필요에 따라 className 또는 class 안에 조합하여 빠르게 스타일을 지정할 수 있습니다.
+
+## 1. 색상 관련
+
+배경색: `code bg-{색상}-{단계}`
+
+```html
+<!-- red 계열, 50~900 단계까지 -->
+<div class="bg-red-500"></div>
+<!-- 커스텀 헥사값 -->
+<div class="bg-[#ff0000]"></div>
+```
+
+텍스트색: `code text-{색상}-{단계}`
+
+```html
+<p class="text-zinc-700">Zinc 중간톤</p>
+```
+
+테두리색: `code border-{색상}-{단계}`
+
+```html
+<button class="border-blue-300">버튼</button>
+```
+
+## 2. 간격 (Spacing)
+
+- 패딩 (Padding)
+
+  - 전체: `p-{크기}` (예: `p-4`)
+  - 가로: `px-{크기}` (예: `px-4`)
+  - 세로: `py-{크기}` (예: `py-4`)
+  - 개별: `pt-{크기}` (위), `pr-{크기}` (오른쪽), `pb-{크기}` (아래), `pl-{크기}` (왼쪽) (예: `pt-2`, `pr-4`)
+
+```html
+<div class="p-4 bg-blue-100">전체 패딩</div>
+<div class="px-8 py-2 bg-green-100">가로, 세로 패딩</div>
+<div class="pt-6 bg-yellow-100">위쪽 패딩</div>
+```
+
+- 마진 (Margin)
+
+  - 전체: `m-{크기}` (예: `m-4`)
+  - 가로: `mx-{크기}` (예: `mx-auto` - 가운데 정렬 시 유용)
+  - 세로: `my-{크기}` (예: `my-4`)
+  - 개별: `mt-{크기}` (위), `mr-{크기}` (오른쪽), `mb-{크기}` (아래), `ml-{크기}` (왼쪽) (예: `mt-2`, `mr-4`)
+  - 음수 마진도 가능합니다. (예: `-m-4`)
+
+```html
+<div class="m-8 bg-purple-100">전체 마진</div>
+<div class="mx-auto my-4 w-1/2 bg-indigo-100">가로 중앙, 세로 마진</div>
+<div class="mb-6 bg-pink-100">아래쪽 마진</div>
+```
+
+## 3. 크기 (Sizing)
+
+- 너비 (Width)
+
+  - `w-{크기}` (예: `w-32`, `w-1/2` (50%), `w-full` (100%), `w-screen` (화면 너비))
+  - `min-w-{크기}` (최소 너비), `max-w-{크기}` (최대 너비) (예: `max-w-md`)
+
+```html
+<div class="w-1/2 bg-gray-200">너비 50%</div>
+<div class="w-full max-w-lg bg-gray-300">최대 너비 lg</div>
+```
+
+- 높이 (Height)
+
+  - `h-{크기}` (예: `h-32`, `h-1/2`, `h-full`, `h-screen` (화면 높이))
+  - `min-h-{크기}` (최소 높이), `max-h-{크기}` (최대 높이) (예: `min-h-screen`)
+
+```html
+<div class="h-48 bg-gray-200">높이 48</div>
+<div class="min-h-screen bg-gray-300">최소 화면 높이</div>
+```
+
+## 4. 레이아웃 (Layout)
+
+- Display
+
+  - `block`, `inline-block`, `inline`, `flex`, `grid`, `hidden` 등
+  - (예: `hidden sm:block` - 작은 화면에서는 숨기고, sm 이상에서는 block으로 표시)
+
+```html
+<div class="hidden sm:flex bg-red-200 p-4">
+  <p>sm 이상 화면에서 보이는 flex 박스</p>
+</div>
+```
+
+- Position
+
+  - `static`, `relative`, `absolute`, `fixed`, `sticky`
+  - 위치 조정: `top-{크기}`, `right-{크기}`, `bottom-{크기}`, `left-{크기}`, `inset-{크기}` (모든 방향)
+
+```html
+<div class="relative h-32 bg-yellow-200">
+  <div class="absolute bottom-0 right-0 p-4 bg-yellow-400">Absolute</div>
+</div>
+<div class="sticky top-0 bg-green-200 p-2">Sticky Nav</div>
+```
+
+- Flexbox
+
+  - 컨테이너: `flex`, `inline-flex`
+  - 아이템 정렬 (justify): `justify-start`, `justify-end`, `justify-center`, `justify-between`, `justify-around`, `justify-evenly`
+  - 아이템 정렬 (align): `items-start`, `items-end`, `items-center`, `items-baseline`, `items-stretch`
+  - 방향: `flex-row`, `flex-row-reverse`, `flex-col`, `flex-col-reverse`
+  - 줄바꿈: `flex-wrap`, `flex-wrap-reverse`, `flex-nowrap`
+  - 아이템 속성: `flex-1` (grow, shrink, basis 자동), `flex-auto`, `flex-initial`, `flex-none`, `grow`, `shrink`, `order-{순서}`
+
+```html
+<div class="flex justify-center items-center space-x-2 bg-blue-200 p-4">
+  <div class="bg-blue-400 p-2">Flex Item 1</div>
+  <div class="bg-blue-500 p-2">Flex Item 2</div>
+</div>
+```
+
+- Grid
+
+  - 컨테이너: `grid`
+  - 컬럼 수: `grid-cols-{개수}` (예: `grid-cols-3`)
+  - 로우 수: `grid-rows-{개수}` (예: `grid-rows-2`)
+  - 간격: `gap-{크기}`, `gap-x-{크기}`, `gap-y-{크기}`
+
+```html
+<div class="grid grid-cols-3 gap-4 bg-purple-200 p-4">
+  <div class="bg-purple-400 p-2">Grid Item 1</div>
+  <div class="bg-purple-500 p-2">Grid Item 2</div>
+  <div class="bg-purple-400 p-2">Grid Item 3</div>
+  <div class="col-span-2 bg-purple-600 p-2">Grid Item 4 (spans 2 cols)</div>
+  <div class="bg-purple-500 p-2">Grid Item 5</div>
+</div>
+```
+
+## 5. 타이포그래피 (Typography)
+
+- 글꼴 계열: `font-sans`, `font-serif`, `font-mono`
+- 글자 크기: `text-xs`, `text-sm`, `text-base` (기본), `text-lg`, `text-xl` ... `text-9xl`
+- 글자 굵기: `font-thin`, `font-extralight`, `font-light`, `font-normal`, `font-medium`, `font-semibold`, `font-bold`, `font-extrabold`, `font-black`
+- 글자 기울임: `italic`, `not-italic`
+- 글자 정렬: `text-left`, `text-center`, `text-right`, `text-justify`
+- 줄 간격: `leading-none`, `leading-tight`, `leading-snug`, `leading-normal`, `leading-relaxed`, `leading-loose`
+- 글자 장식: `underline`, `line-through`, `no-underline`
+
+```html
+<p class="font-serif text-2xl font-bold text-center leading-loose">
+  타이포그래피 예시
+</p>
+<a href="#" class="text-blue-600 underline hover:text-blue-800">링크 스타일</a>
+```
+
+## 6. 테두리 (Borders)
+
+- 테두리 두께: `border`, `border-0`, `border-2`, `border-4`, `border-8`, `border-t-2` (위쪽만) 등
+- 테두리 스타일: `border-solid`, `border-dashed`, `border-dotted`, `border-double`, `border-none` (기본값)
+- 테두리 둥글기: `rounded-sm`, `rounded`, `rounded-md`, `rounded-lg`, `rounded-xl`, `rounded-2xl`, `rounded-3xl`, `rounded-full`, `rounded-t-lg` (위쪽만) 등
+
+```html
+<div class="border-4 border-dashed border-green-500 rounded-xl p-4">
+  테두리 예시
+</div>
+<button
+  class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded-full"
 >
-> 여러 줄의 인용문도 가능합니다.
+  둥근 버튼
+</button>
+```
+
+## 7. 그림자 (Shadows)
+
+- `shadow-sm`, `shadow`, `shadow-md`, `shadow-lg`, `shadow-xl`, `shadow-2xl`, `shadow-inner`, `shadow-none`
+
+```html
+<div class="shadow-xl p-6 bg-white rounded-lg">그림자 효과가 적용된 카드</div>
+```
+
+## 8. 반응형 디자인 (Responsive Design)
+
+Tailwind CSS는 모바일 우선 접근 방식을 사용하며, 반응형 디자인을 위한 중단점(breakpoint) 프리픽스를 제공합니다.
+
+- `sm:` (640px 이상)
+- `md:` (768px 이상)
+- `lg:` (1024px 이상)
+- `xl:` (1280px 이상)
+- `2xl:` (1536px 이상)
+
+이 프리픽스를 유틸리티 클래스 앞에 붙여 특정 화면 크기 이상에서만 스타일이 적용되도록 할 수 있습니다.
+
+```html
+<div
+  class="bg-red-500 sm:bg-green-500 md:bg-blue-500 lg:bg-yellow-500 xl:bg-purple-500 2xl:bg-pink-500 p-4 text-white"
 >
-> > 중첩된 인용문도 사용할 수 있습니다.
+  화면 크기에 따라 배경색이 변경됩니다.
+</div>
 
----
+<div class="text-center">
+  <p class="text-lg md:text-2xl lg:text-4xl">텍스트 크기도 반응형으로!</p>
+</div>
 
-## 5. 콜아웃(정보 상자)
+<div
+  class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4"
+>
+  <div class="bg-gray-200 p-4 rounded">아이템 1</div>
+  <div class="bg-gray-200 p-4 rounded">아이템 2</div>
+  <div class="bg-gray-200 p-4 rounded">아이템 3</div>
+  <div class="bg-gray-200 p-4 rounded">아이템 4</div>
+</div>
+```
 
-<Callout type="info">이것은 정보 콜아웃입니다.</Callout>
+이 외에도 매우 다양한 유틸리티 클래스들이 존재합니다. 공식 문서를 참고하시면 더 많은 정보를 얻을 수 있습니다.
+Tailwind CSS를 활용하여 빠르고 일관된 UI 개발을 경험해 보세요!
 
-<Callout type="warning">이것은 경고 콜아웃입니다.</Callout>
+## 9. Tailwind CSS 커스텀 설정 (`tailwind.config.js`)
 
-<Callout type="error">이것은 위험 콜아웃입니다.</Callout>
+Tailwind CSS의 강력한 기능 중 하나는 `tailwind.config.js` 파일을 통해 기본 설정을 쉽게 확장하고 커스터마이징할 수 있다는 점입니다. 프로젝트의 디자인 시스템에 맞게 색상, 폰트, 간격 등을 추가하거나 기존 유틸리티를 재정의할 수 있습니다.
 
-<Callout type="tip">이것은 팁 콜아웃입니다.</Callout>
+### 9.1 커스텀 색상 추가
 
-<Callout type="note">이것은 참고 콜아웃입니다.</Callout>
-
-<Callout type="success">이것은 성공 콜아웃입니다.</Callout>
-
-정보: 이것은 텍스트 기반 정보 콜아웃입니다.
-
-주의: 이것은 텍스트 기반 주의 콜아웃입니다.
-
-위험: 이것은 텍스트 기반 위험 콜아웃입니다.
-
----
-
-## 6. 목록
-
-### 순서 없는 목록
-
-- 항목 1
-- 항목 2
-  - 하위 항목 2-1
-  - 하위 항목 2-2
-- 항목 3
-
-다른 기호를 사용한 목록:
-
-- 항목 A
-- 항목 B
-  - 중첩 항목 B-1
-  - 중첩 항목 B-2
-- 항목 C
-
-* 또 다른 항목 1
-* 또 다른 항목 2
-
-### 순서 있는 목록
-
-1. 첫 번째
-2. 두 번째
-   1. 두 번째-1
-   2. 두 번째-2
-3. 세 번째
-
-### 작업 목록 (체크박스)
-
-- [x] 완료된 작업
-- [ ] 미완료된 작업
-- [ ] 또 다른 미완료된 작업
-- [x] 또 다른 완료된 작업
-
----
-
-## 7. 표
-
-### 기본 표
-
-| 제목 1 | 제목 2 | 제목 3 |
-| ------ | ------ | ------ |
-| 내용 1 | 내용 2 | 내용 3 |
-| 내용 4 | 내용 5 | 내용 6 |
-
-### 정렬이 있는 표
-
-| 왼쪽 정렬 | 가운데 정렬 | 오른쪽 정렬 |
-| :-------- | :---------: | ----------: |
-| 내용 1    |   내용 2    |      내용 3 |
-| 내용 4    |   내용 5    |      내용 6 |
-
-### 복잡한 표
-
-| 이름   | 직업     | 나이 | 특기        |
-| ------ | -------- | ---- | ----------- |
-| 김철수 | 개발자   | 28   | JavaScript  |
-| 이영희 | 디자이너 | 25   | UI/UX       |
-| 박지민 | 마케터   | 30   | 콘텐츠 제작 |
-
----
-
-## 8. 코드 블록
-
-### 인라인 코드
-
-이것은 `인라인 코드` 예시입니다.
-
-### 코드 블록
+`theme.extend.colors` 객체 내에 새로운 색상 팔레트를 정의할 수 있습니다. 이렇게 추가된 색상은 다른 Tailwind 색상 유틸리티와 동일하게 사용할 수 있습니다 (예: `bg-primary`, `text-secondary-dark`).
 
 ```javascript
-// JavaScript 예시 코드
-function greet(name) {
-  console.log(`Hello, ${name}!`);
-}
-greet("World");
+// tailwind.config.js
+module.exports = {
+  content: ["./src/**/*.{js,jsx,ts,tsx}", "./public/index.html"],
+  theme: {
+    extend: {
+      colors: {
+        primary: "#1DA1F2", // 트위터 블루
+        secondary: {
+          light: "#FFD700", // 골드 라이트
+          DEFAULT: "#FFC107", // 골드
+          dark: "#FFA000", // 골드 다크
+        },
+        "custom-gray": {
+          100: "#f7fafc",
+          // ... 다른 회색 단계
+          900: "#1a202c",
+        },
+      },
+    },
+  },
+  plugins: [],
+};
 ```
 
-```python
-# Python 예시 코드
-def greet(name):
-    print(f"Hello, {name}!")
+사용 예시:
 
-greet("World")
+```html
+<button class="bg-primary text-white p-2 rounded">
+  메인 액션 버튼 (커스텀 primary 색상)
+</button>
+<p class="text-secondary-dark">커스텀 secondary-dark 색상 텍스트</p>
+<div class="bg-custom-gray-100 p-4">커스텀 회색 배경</div>
 ```
 
----
+### 9.2 테마의 다른 값 확장
 
-## 9. YouTube 링크와 Google Maps
+색상 외에도 폰트, 간격, 중단점 등 다양한 테마 값을 `theme.extend` 객체를 통해 확장할 수 있습니다.
 
-### YouTube 링크
+```javascript
+// tailwind.config.js
+module.exports = {
+  content: ["./src/**/*.{js,jsx,ts,tsx}", "./public/index.html"],
+  theme: {
+    extend: {
+      fontFamily: {
+        sans: ["Inter", "sans-serif"], // 기본 sans-serif 폰트 변경
+        custom: ['"My Custom Font"', "cursive"], // 새로운 폰트 계열 추가
+      },
+      spacing: {
+        128: "32rem", // 새로운 간격 값 추가 (예: p-128, m-128)
+        หน้าจอ: "100vw", // 한국어 키 사용 가능 (권장하지는 않음)
+      },
+      borderRadius: {
+        "4xl": "2rem",
+      },
+      screens: {
+        "3xl": "1920px", // 새로운 중단점 추가
+      },
+    },
+  },
+  plugins: [],
+};
+```
 
-<iframe
-  width="560"
-  height="315"
-  src="https://www.youtube.com/embed/dQw4w9WgXcQ"
-  title="YouTube video player"
-  frameBorder="0"
-  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-  allowFullScreen
-></iframe>
+사용 예시:
 
-### Google Maps
+```html
+<body class="font-sans">
+  <h1 class="font-custom text-3xl">커스텀 폰트 제목</h1>
+  <div class="mt-128 p-4 bg-gray-100">커스텀 간격(mt-128)이 적용된 div</div>
+  <div class="rounded-4xl bg-blue-200 p-8">매우 둥근 모서리 (rounded-4xl)</div>
+  <div class="bg-red-200 3xl:bg-green-200">
+    3xl 화면 크기 이상에서 배경색 변경
+  </div>
+</body>
+```
 
-<iframe
-  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3164.248487554999!2d-122.41941848457082!3d37.80540747975056!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8085809c6c8f0b81%3A0x37e0d7ffbe8e6a3!2sGolden%20Gate%20Bridge!5e0!3m2!1sen!2sus!4v1678435200000!5m2!1sen!2sus"
-  width="600"
-  height="450"
-  style={{ border: 0 }}
-  allowFullScreen=""
-  loading="lazy"
-  referrerPolicy="no-referrer-when-downgrade"
-></iframe>
+### 9.3 플러그인을 사용한 확장
+
+Tailwind CSS 플러그인을 사용하여 더욱 복잡한 커스텀 유틸리티나 컴포넌트 스타일을 추가할 수 있습니다. 예를 들어, 타이포그래피 플러그인 (`@tailwindcss/typography`)은 Markdown 등으로 생성된 콘텐츠 블록에 보기 좋은 기본 스타일을 제공합니다.
+
+먼저 플러그인을 설치합니다:
+
+```bash
+npm install --save-dev @tailwindcss/typography
+```
+
+그리고 `tailwind.config.js` 파일의 `plugins` 배열에 추가합니다.
+
+```javascript
+// tailwind.config.js
+module.exports = {
+  // ... content, theme 설정
+  plugins: [
+    require("@tailwindcss/typography"),
+    // 다른 플러그인들...
+  ],
+};
+```
+
+이제 `prose` 클래스를 사용하여 타이포그래피 스타일을 적용할 수 있습니다.
+
+```html
+<article class="prose lg:prose-xl">
+  <h1>블로그 게시물 제목</h1>
+  <p>이것은 플러그인에 의해 스타일이 적용된 문단입니다.</p>
+  <!-- 기타 마크다운 콘텐츠 -->
+</article>
+```
+
+이처럼 `tailwind.config.js` 파일을 활용하면 Tailwind CSS를 프로젝트 요구사항에 맞게 유연하게 조정하여 사용할 수 있습니다. 자세한 설정 옵션은 [Tailwind CSS 공식 문서 - Theme Configuration](https://tailwindcss.com/docs/theme)를 참고하세요.

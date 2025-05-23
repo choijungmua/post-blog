@@ -314,19 +314,25 @@ export default function MDXRenderer({ source }) {
   // 클라이언트 사이드에서만 MDX 렌더링
   return (
     <>
-      {processedSource ? (
-        <MDXRemote
-          {...processedSource}
-          components={components}
-          options={{ mdxOptions, parseFrontmatter: true }}
-        />
-      ) : (
-        <MDXRemote
-          {...source}
-          components={components}
-          options={{ mdxOptions, parseFrontmatter: true }}
-        />
-      )}
+      {processedSource
+        ? (() => {
+            return (
+              <MDXRemote
+                {...processedSource}
+                components={components}
+                options={{ mdxOptions, parseFrontmatter: true }}
+              />
+            );
+          })()
+        : (() => {
+            return (
+              <MDXRemote
+                {...source}
+                components={components}
+                options={{ mdxOptions, parseFrontmatter: true }}
+              />
+            );
+          })()}
 
       {/* 각주 목록 렌더링 */}
       {footnotes.length > 0 && (
