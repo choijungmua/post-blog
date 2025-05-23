@@ -23,14 +23,11 @@ jobs:
       - name: Install dependencies
         run: yarn install
 
-      - name: Install typescript
-        run: yarn add -D typescript
-
       - name: Build static site
         run: CI=true yarn build
 
       - name: Upload only posts to S3
-        uses: jakejarvis/s3-sync-action@v0.8.0
+        uses: jakejarvis/s3-sync-action@master # 또는 @v0.5.1
         with:
           args: >
             --delete
