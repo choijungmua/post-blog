@@ -1,6 +1,3 @@
-# .github/workflows/deploy.yml
-# CICD Test
-
 name: Deploy to AWS S3 + CloudFront
 
 on:
@@ -11,10 +8,11 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # 전체 히스토리 가져오기 (기본은 1)
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
@@ -27,23 +25,28 @@ jobs:
       - name: Build static site
         run: CI=true yarn build
 
-      - name: Upload to S3
+      - name: Upload only posts to S3
         uses: jakejarvis/s3-sync-action@master
         with:
-          args: --delete
+          args: --delete --exclude "*" --include "posts/*"
         env:
           AWS_S3_BUCKET: muke.co.kr
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: ap-northeast-2
-          SOURCE_DIR: out
+          SOURCE_DIR: out/public
 
-      - name: Get list of changed HTML files
-        id: changed
+      - name: Get changed posts files
+        id: changed-posts
         run: |
-          echo "PATHS=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '^out/.*\.html$' | sed 's/^out//g' | tr '\n' ' ')" >> $GITHUB_ENV
+          # 변경된 커밋 간 차이를 보고 public/posts 폴더의 경로만 뽑아서 out 제거
+          echo "PATHS=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} \
+            | grep '^public/posts/.*' \
+            | sed 's/^public//g' \
+            | tr '\n' ' ')" >> $GITHUB_ENV
 
-      - name: Invalidate CloudFront cache (only changed HTML files)
+      - name: Invalidate CloudFront cache for posts
+        if: env.PATHS != '' # 변경된 파일이 있을 때만 실행
         uses: chetan/invalidate-cloudfront-action@v2
         env:
           AWS_REGION: ap-northeast-2
