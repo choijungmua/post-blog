@@ -2,11 +2,9 @@ import "../assets/styles/globals.css";
 import { ToastProvider } from "@/components/shadcn/use-toast";
 import Header from "@/components/ui/nav";
 import { ThemeProvider } from "@/utils/theme/ThemeProvider";
+import { metadata as siteMetadata } from "@/utils/data/metaData";
 
-export const metadata = {
-  title: "블로그",
-  description: "Next.js로 만든 블로그",
-};
+export const metadata = siteMetadata;
 
 export default function RootLayout({ children }) {
   return (
