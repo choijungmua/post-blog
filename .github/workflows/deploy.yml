@@ -8,6 +8,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -29,9 +30,12 @@ jobs:
         run: CI=true yarn build
 
       - name: Upload only posts to S3
-        uses: jakejarvis/s3-sync-action@master
+        uses: jakejarvis/s3-sync-action@v0.8.0
         with:
-          args: --delete --exclude "*" --include "posts/*"
+          args: >
+            --delete
+            --exclude "*"
+            --include "posts/*"
         env:
           AWS_S3_BUCKET: muke.co.kr
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
