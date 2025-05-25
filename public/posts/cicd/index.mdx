@@ -1,0 +1,295 @@
+---
+title: "블로그의 cicd"
+date: "2025-05-26"
+tags: ["cicd", "Github Actions"]
+thumbnail: "assets/main.jpg"
+excerpt: "배포 과정에서 어떻게 하면 편하게 배포 할 것이에 대한 고민을 담은 글 입니다. cicd의 기본을 배우며 이 프로젝트에서는 어떻게 cicd를 구축하게 되었는지에 대해서 설명합니다."
+---
+
+# CI/CD란 무엇인가?
+
+CI/CD(지속적 통합/지속적 배포)는 현대 소프트웨어 개발에서 필수적인 개념입니다. 이 접근 방식은 개발 과정을 자동화하고 코드 품질을 향상시키며 배포 주기를 단축시킵니다.
+
+## CI(Continuous Integration, 지속적 통합)
+
+지속적 통합은 개발자들이 코드 변경사항을 메인 브랜치에 자주 병합하는 프로세스입니다. 각 병합은 자동화된 빌드와 테스트를 통해 검증됩니다. 이 과정을 통해:
+
+- 버그를 초기에 발견하고 해결할 수 있습니다.
+- 코드 품질을 일관되게 유지할 수 있습니다.
+- 통합 문제를 신속하게 해결할 수 있습니다.
+
+## CD(Continuous Delivery/Deployment, 지속적 배포)
+
+지속적 배포는 코드 변경사항이 자동으로 테스트 환경이나 프로덕션 환경에 배포되는 프로세스입니다. 이를 통해:
+
+- 배포 과정에서의 인적 오류를 줄일 수 있습니다.
+- 더 빠른 릴리스 주기를 가능하게 합니다.
+- 사용자에게 새로운 기능을 더 빠르게 제공할 수 있습니다.
+
+# GitHub Actions 소개
+
+GitHub Actions는 GitHub에서 제공하는 CI/CD 도구로, 코드 저장소에서 직접 워크플로우를 자동화할 수 있게 해줍니다. 복잡한 CI/CD 파이프라인을 YAML 파일로 정의하고 GitHub 저장소 내에서 실행할 수 있습니다.
+
+## GitHub Actions의 주요 구성 요소
+
+1. **워크플로우(Workflow)**: `.github/workflows` 디렉토리에 위치한 YAML 파일로 정의됩니다.
+2. **이벤트(Event)**: 워크플로우를 트리거하는 특정 활동(예: push, pull request)입니다.
+3. **작업(Job)**: 동일한 러너에서 실행되는 일련의 단계들입니다.
+4. **단계(Step)**: 명령어나 액션을 실행하는 개별 작업입니다.
+5. **액션(Action)**: 워크플로우에서 자주 사용되는 기능을 재사용 가능한 단위로 패키지화한 것입니다.
+6. **러너(Runner)**: 워크플로우 작업을 실행하는 서버입니다.
+
+## GitHub Actions 워크플로우 예시
+
+다음은 Next.js 프로젝트를 빌드하고 Vercel에 배포하는 간단한 워크플로우 예시입니다:
+
+```yaml
+name: Deploy to Vercel
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+      - name: Deploy to Vercel
+        uses: amondnet/vercel-action@v20
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          vercel-args: "--prod"
+```
+
+# 이 블로그의 CI/CD 구현
+
+이 Next.js 블로그 프로젝트에서는 GitHub Actions를 활용하여 AWS S3와 CloudFront를 통한 배포 파이프라인을 구축했습니다. 이 구성을 통해 코드 변경사항이 자동으로 배포되고 캐시가 갱신됩니다.
+
+## 워크플로우 구성
+
+1. **코드 체크아웃**: 저장소의 최신 코드를 가져옵니다.
+2. **빌드 환경 설정**: Node.js 설정 및 의존성 설치
+3. **정적 사이트 빌드**: Next.js 프로젝트를 정적 사이트로 빌드
+4. **AWS S3 배포**: 빌드된 파일을 S3 버킷에 업로드
+5. **변경된 파일 감지**: 이전 커밋과 비교하여 변경된 파일 목록 추출
+6. **CloudFront 캐시 무효화**: 변경된 파일에 대한 CDN 캐시 갱신
+
+## 실제 워크플로우 파일
+
+프로젝트의 `.github/workflows/deploy.yml` 파일에는 다음과 같은 워크플로우가 정의되어 있습니다:
+
+```yaml
+name: Deploy to AWS S3 + CloudFront
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Build static site
+        run: CI=true yarn build
+
+      - name: Upload only posts to S3
+        uses: jakejarvis/s3-sync-action@master
+        env:
+          AWS_S3_BUCKET: muke.co.kr
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ap-northeast-2
+          SOURCE_DIR: out
+          DEST_DIR: ""
+          AWS_S3_ENDPOINT: ""
+          ARGS: --delete --exclude "*" --include "posts/*"
+
+      - name: Get changed posts files
+        id: changed-posts
+        run: |
+          echo "PATHS=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} \
+            | grep '^out/posts/.*' \
+            | sed 's/^out//g' \
+            | tr '\n' ' ')" >> $GITHUB_ENV
+
+      - name: Invalidate CloudFront cache for posts
+        if: env.PATHS != ''
+        uses: chetan/invalidate-cloudfront-action@v2
+        env:
+          AWS_REGION: ap-northeast-2
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          DISTRIBUTION: ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }}
+          PATHS: ${{ env.PATHS }}
+```
+
+## 워크플로우 단계별 설명
+
+### 1. 트리거 설정
+
+```yaml
+on:
+  push:
+    branches:
+      - main
+```
+
+이 설정은 `main` 브랜치에 코드가 푸시될 때마다 워크플로우가 실행되도록 합니다.
+
+### 2. 코드 체크아웃
+
+```yaml
+- name: Checkout repository
+  uses: actions/checkout@v3
+  with:
+    fetch-depth: 0
+```
+
+`fetch-depth: 0` 옵션은 전체 커밋 히스토리를 가져와 변경 사항을 비교할 수 있게 합니다.
+
+### 3. Node.js 설정
+
+```yaml
+- name: Set up Node.js
+  uses: actions/setup-node@v3
+  with:
+    node-version: 18
+```
+
+Node.js 버전 18을 설치하여 빌드 환경을 준비합니다.
+
+### 4. 의존성 설치 및 빌드
+
+```yaml
+- name: Install dependencies
+  run: yarn install
+
+- name: Build static site
+  run: CI=true yarn build
+```
+
+Yarn을 사용해 프로젝트 의존성을 설치하고 정적 사이트를 빌드합니다. `CI=true` 환경 변수는 CI 환경에서 빌드가 실행 중임을 알립니다.
+
+### 5. S3 배포
+
+```yaml
+- name: Upload only posts to S3
+  uses: jakejarvis/s3-sync-action@master
+  env:
+    AWS_S3_BUCKET: muke.co.kr
+    AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+    AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    AWS_REGION: ap-northeast-2
+    SOURCE_DIR: out
+    DEST_DIR: ""
+    AWS_S3_ENDPOINT: ""
+    ARGS: --delete --exclude "*" --include "posts/*"
+```
+
+이 단계에서는 빌드된 `out` 디렉토리에서 `posts` 폴더만 S3 버킷에 동기화합니다. `--delete` 옵션은 S3에 있지만 로컬에 없는 파일을 삭제하고, `--exclude "*" --include "posts/*"` 옵션은 `posts` 디렉토리만 포함하도록 합니다.
+
+### 6. 변경된 파일 감지
+
+```yaml
+- name: Get changed posts files
+  id: changed-posts
+  run: |
+    echo "PATHS=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} \
+      | grep '^out/posts/.*' \
+      | sed 's/^out//g' \
+      | tr '\n' ' ')" >> $GITHUB_ENV
+```
+
+이 스크립트는 현재 커밋과 이전 커밋 사이에 변경된 파일 중 `out/posts` 디렉토리에 있는 파일만 찾아 경로 목록을 생성합니다.
+
+### 7. CloudFront 캐시 무효화
+
+```yaml
+- name: Invalidate CloudFront cache for posts
+  if: env.PATHS != ''
+  uses: chetan/invalidate-cloudfront-action@v2
+  env:
+    AWS_REGION: ap-northeast-2
+    AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+    AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    DISTRIBUTION: ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }}
+    PATHS: ${{ env.PATHS }}
+```
+
+변경된 파일이 있는 경우에만 CloudFront 캐시를 무효화합니다. 이렇게 하면 변경된 파일만 CDN에서 갱신되어 불필요한 캐시 무효화를 방지할 수 있습니다.
+
+# GitHub Actions의 장점
+
+1. **GitHub와의 통합**: 별도의 CI/CD 도구 없이 GitHub 내에서 모든 것을 관리할 수 있습니다.
+2. **다양한 환경 지원**: Windows, macOS, Linux 등 다양한 환경에서 워크플로우를 실행할 수 있습니다.
+3. **풍부한 마켓플레이스**: 수천 개의 사전 구성된 액션을 활용할 수 있습니다.
+4. **병렬 작업 실행**: 여러 작업을 동시에 실행하여 빌드 시간을 단축할 수 있습니다.
+5. **비밀 관리**: 민감한 정보를 안전하게 저장하고 워크플로우에서 사용할 수 있습니다.
+
+# AWS 서비스를 활용한 배포 전략
+
+이 블로그는 다음과 같은 AWS 서비스를 활용하여 배포됩니다:
+
+## Amazon S3 (Simple Storage Service)
+
+- 정적 웹사이트 호스팅에 이상적인 객체 스토리지 서비스
+- 높은 내구성과 가용성 제공
+- 비용 효율적인 스토리지 솔루션
+
+## Amazon CloudFront
+
+- 글로벌 콘텐츠 전송 네트워크(CDN)
+- 전 세계 엣지 로케이션을 통한 빠른 콘텐츠 전송
+- HTTPS 지원 및 DDoS 보호 기능
+- 캐싱을 통한 원본 서버 부하 감소
+
+## 배포 최적화 전략
+
+1. **선택적 배포**: 변경된 파일만 S3에 업로드하여 배포 시간 단축
+2. **선택적 캐시 무효화**: 변경된 파일에 대해서만 CloudFront 캐시 무효화
+3. **병렬 처리**: 여러 작업을 동시에 실행하여 전체 배포 시간 단축
+
+# 결론
+
+GitHub Actions와 AWS 서비스를 활용한 CI/CD 파이프라인을 구축함으로써 이 블로그 프로젝트는 다음과 같은 이점을 얻었습니다:
+
+1. **자동화된 배포**: 코드 변경 시 자동으로 배포되어 개발 효율성이 향상되었습니다.
+2. **빠른 콘텐츠 전달**: CloudFront CDN을 통해 전 세계 사용자에게 빠르게 콘텐츠를 전달할 수 있습니다.
+3. **비용 효율성**: 필요한 리소스만 사용하여 비용을 최적화했습니다.
+4. **안정적인 배포**: 자동화된 프로세스로 인적 오류를 줄이고 일관된 배포가 가능해졌습니다.
+
+GitHub Actions와 AWS 서비스를 결합한 CI/CD 파이프라인은 블로그와 같은 정적 웹사이트 배포에 매우 효과적인 솔루션입니다. 이 접근 방식은 개발자가 콘텐츠 작성에 집중할 수 있게 하며, 배포 과정의 복잡성을 추상화하여 전체 워크플로우를 간소화합니다.
