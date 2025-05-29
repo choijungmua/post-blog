@@ -1,7 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  output: "export",
+  // 개발 환경에서는 output export를 사용하지 않음 (middleware 사용을 위해)
+  ...(process.env.NODE_ENV === "production" && { output: "export" }),
   // basePath 추가 (배포 환경에 맞게 조정 필요)
   // basePath: '/next-blog',
   images: {

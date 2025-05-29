@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   NavigationMenu,
   NavigationMenuList,
@@ -15,7 +15,14 @@ import { useTheme } from "next-themes";
 import { menuItems } from "@/utils/data/siteData";
 
 function Header() {
-  const { theme, setTheme } = useTheme();
+  const { resolvedTheme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  // 클라이언트에서만 테마 상태를 확인하도록 함
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   // 메뉴 데이터 구조화
 
   return (
@@ -66,26 +73,22 @@ function Header() {
           </NavigationMenuList>
         </NavigationMenu>
         {/* 다크모드 화이트모드 */}
-        <div className="flex items-center ">
-          {theme === "light" ? (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="hover:cursor-pointer"
-              onClick={() => setTheme("dark")}
-            >
-              <SunIcon className="h-4 w-4" />
-            </Button>
-          ) : (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="hover:cursor-pointer"
-              onClick={() => setTheme("light")}
-            >
+        <div className="flex items-center">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="hover:cursor-pointer"
+            onClick={() =>
+              setTheme(resolvedTheme === "dark" ? "light" : "dark")
+            }
+            suppressHydrationWarning
+          >
+            {mounted && resolvedTheme === "dark" ? (
               <MoonIcon className="h-4 w-4" />
-            </Button>
-          )}
+            ) : (
+              <SunIcon className="h-4 w-4" />
+            )}
+          </Button>
         </div>
       </div>
     </nav>
